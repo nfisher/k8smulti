@@ -2,15 +2,30 @@
 
 Provides a multinode cluster on your local machine.
 
-Provides:
+## Provides
 
   - 1 x master (2vcpu & 2GB ram)
   - 2 x nodes (2vcpu & 4GB ram)
   - kube-router - service proxy, firewall, and pod networking.
   - k8s v1.14.2.
   - helm 2.x.
-  - api - 192.168.253.100:6443.
+  - API - 192.168.253.100:6443.
   - kube config - ~vagrant/.kube/config
+
+## Required Software
+
+  - [Vagrant](https://www.vagrantup.com)
+  - [VirtualBox](https://www.virtualbox.org)
+
+## Getting Started
+
+ 1. Install the required software.
+ 2. Run `vagrant up master` to provision the master node.
+ 3. Run `vagrant ssh master` and check the master is ready with `kubectl get nodes -o wide`.
+ 4. Run `vagrant up` to provision the nodes.
+ 5. Run `vagrant ssh master` and check the nodes are ready with `kubectl get nodes -o wide`.
+
+**Note**: Kubernetes config is available in `/home/vagrant/.kube/config` on the master.
 
 ## References
 
