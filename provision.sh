@@ -1,5 +1,7 @@
 #!/bin/bash -eux
 
+PATH=$PATH:/usr/local/bin; export PATH
+
 # k8s repo setup
 cat <<EOF > /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
@@ -11,6 +13,7 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 exclude=kube*
 EOF
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 
 # disable swap
 swapoff -a
@@ -20,7 +23,7 @@ grep -v swap /etc/fstab > /etc/fstab.tmp && mv /etc/fstab.tmp /etc/fstab
 setenforce 0
 sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
-yum install -y docker ipvsadm net-tools kubelet kubeadm kubectl --disableexcludes=kubernetes 
+yum install -y docker-ce ipvsadm net-tools kubelet kubeadm kubectl --disableexcludes=kubernetes 
 
 # networking config
 cat <<EOF >  /etc/sysctl.d/k8s.conf
@@ -41,3 +44,5 @@ systemctl enable --now docker
 # enable the kubelet
 systemctl enable --now kubelet
 
+# install helm
+curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
