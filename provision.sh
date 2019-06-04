@@ -1,5 +1,8 @@
 #!/bin/bash -eux
 
+KUBE_VERSION="1.13.6"; export KUBE_VERSION
+K8S_RPM="${KUBE_VERSION}-0"; export K8S_RPM
+DOCKER_VERSION="18.06.3.ce-3.el7"; export DOCKER_VERSION
 PATH=$PATH:/usr/local/bin; export PATH
 
 # k8s repo setup
@@ -14,6 +17,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 exclude=kube*
 EOF
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+yum install -y epel-release
 
 # disable swap
 swapoff -a
@@ -23,7 +27,17 @@ grep -v swap /etc/fstab > /etc/fstab.tmp && mv /etc/fstab.tmp /etc/fstab
 setenforce 0
 sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
-yum install -y docker-ce ipvsadm net-tools kubelet kubeadm kubectl --disableexcludes=kubernetes 
+# install OS packages
+yum install -y --disableexcludes=kubernetes \
+  ipvsadm net-tools htop \
+  kernel-devel-`uname -r` kernel-headers-`uname -r` \
+  gcc make \
+  docker-ce-${DOCKER_VERSION} \
+  kubelet-${K8S_RPM} kubeadm-${K8S_RPM} kubectl-${K8S_RPM}
+
+# Install VirtualBox Guest Additions
+mount -r /dev/cdrom /media
+/media/VBoxLinuxAdditions.run
 
 # networking config
 cat <<EOF >  /etc/sysctl.d/k8s.conf
@@ -44,5 +58,14 @@ systemctl enable --now docker
 # enable the kubelet
 systemctl enable --now kubelet
 
+if [ "master" = `hostname -s` ]; then
+  kubeadm init \
+    --kubernetes-version=v${KUBE_VERSION} \
+    --token=abcdef.0123456789abcdef \
+    --apiserver-advertise-address=192.168.253.100 \
+    --pod-network-cidr=10.244.0.0/16
+fi
+
 # install helm
 curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
+

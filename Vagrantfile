@@ -7,6 +7,16 @@ Vagrant.configure("2") do |config|
   config.vm.provider "virtualbox" do |vb|
     vb.cpus = 2
     vb.customize ["modifyvm", :id, "--audio", "none"]
+    vb.customize ["modifyvm", :id, "--paravirtprovider", "kvm"]
+    vb.customize ["modifyvm", :id, "--largepages", "on"]
+    vb.customize ["modifyvm", :id, "--vtxvpid", "on"]
+    vb.customize ["modifyvm", :id, "--vtxux", "on"]
+    vb.customize ["storageattach", :id,
+                  "--storagectl", "IDE",
+                  "--port", "0",
+                  "--device", "1",
+                  "--type", "dvddrive",
+                  "--medium", "/Applications/VirtualBox.app/Contents/MacOS/VBoxGuestAdditions.iso"]
   end
 
   config.vm.provision "shell", path: "provision.sh"
