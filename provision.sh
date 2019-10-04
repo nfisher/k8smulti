@@ -1,8 +1,8 @@
 #!/bin/bash -eux
 
-KUBE_VERSION="1.13.6"; export KUBE_VERSION
+KUBE_VERSION="1.14.7"; export KUBE_VERSION
 K8S_RPM="${KUBE_VERSION}-0"; export K8S_RPM
-DOCKER_VERSION="18.06.3.ce-3.el7"; export DOCKER_VERSION
+DOCKER_VERSION="18.09.9-3.el7"; export DOCKER_VERSION
 PATH=$PATH:/usr/local/bin; export PATH
 
 # k8s repo setup
@@ -29,15 +29,29 @@ sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
 # install OS packages
 yum install -y --disableexcludes=kubernetes \
+  yum-utils device-mapper-persistent-data lvm2 \
   ipvsadm net-tools htop \
-  kernel-devel-`uname -r` kernel-headers-`uname -r` \
+  kernel-devel kernel-headers kernel \
   gcc make \
   docker-ce-${DOCKER_VERSION} \
   kubelet-${K8S_RPM} kubeadm-${K8S_RPM} kubectl-${K8S_RPM}
 
-# Install VirtualBox Guest Additions
-mount -r /dev/cdrom /media
-/media/VBoxLinuxAdditions.run
+
+# Docker daemon config
+mkdir -p /etc/docker
+cat > /etc/docker/daemon.json <<EOF
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2",
+  "storage-opts": [
+    "overlay2.override_kernel_check=true"
+  ]
+}
+EOF
 
 # networking config
 cat <<EOF >  /etc/sysctl.d/k8s.conf
@@ -68,4 +82,8 @@ fi
 
 # install helm
 curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
+
+# Prepare Install of VirtualBox Guest Additions
+mount -r /dev/cdrom /media
+/media/VBoxLinuxAdditions.run --noexec
 
