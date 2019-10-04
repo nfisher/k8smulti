@@ -9,13 +9,13 @@ cp /etc/kubernetes/admin.conf /home/vagrant/.kube/config
 chown -R vagrant:vagrant /home/vagrant/.kube
 
 # flannel CNI network
-#kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 
 # kuberouter install
-kubectl apply -f https://raw.githubusercontent.com/cloudnativelabs/kube-router/master/daemonset/kubeadm-kuberouter-all-features.yaml
-kubectl -n kube-system delete ds kube-proxy
+#kubectl apply -f https://raw.githubusercontent.com/cloudnativelabs/kube-router/master/daemonset/kubeadm-kuberouter-all-features.yaml
+#kubectl -n kube-system delete ds kube-proxy
 # clean up existing ipvs and ip-tables rules
-docker run --privileged -v /lib/modules:/lib/modules --net=host k8s.gcr.io/kube-proxy-amd64:v1.10.2 kube-proxy --cleanup
+#docker run --privileged -v /lib/modules:/lib/modules --net=host k8s.gcr.io/kube-proxy-amd64:v1.10.2 kube-proxy --cleanup
 
 # helm setup
 kubectl --namespace kube-system create sa tiller
