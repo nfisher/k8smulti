@@ -6,6 +6,7 @@ apt-get update
 apt-get install -y apt-cacher-ng
 echo 'PassThroughPattern: ^(.*):443$' >> /etc/apt-cacher-ng/acng.conf
 service apt-cacher-ng restart
+
 echo 'Acquire::http { Proxy "http://192.168.253.99:3142"; };' > /etc/apt/apt.conf.d/02proxy
 
 apt-get update
@@ -95,4 +96,4 @@ health:
 EOF
 
 docker run -d -p 5000:5000 --restart=always -v /etc/docker/registry.yml:/etc/docker/registry/config.yml --name registry registry:2.7
-
+docker run -d -p 5001:5000 --restart=always --name local-registry registry:2.7

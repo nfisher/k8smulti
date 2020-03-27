@@ -8,16 +8,15 @@ mkdir -p /home/vagrant/.kube
 cp /etc/kubernetes/admin.conf /home/vagrant/.kube/config
 chown -R vagrant:vagrant /home/vagrant/.kube
 
-# flannel network
-kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+helm repo add cilium https://helm.cilium.io/
+helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+helm repo update
 
-# calico network
-#kubectl apply -f https://docs.projectcalico.org/v3.9/manifests/calico.yaml
+helm install cilium cilium/cilium --version 1.7.1 \
+    --namespace kube-system \
+    --set global.kubeProxyReplacement=probe \
+    --set global.k8sServiceHost=192.168.253.100 \
+    --set global.k8sServicePort=6443
 
-# kube-router network
-# apt-get install -y ipvsadm
-#kubectl apply -f https://raw.githubusercontent.com/cloudnativelabs/kube-router/master/daemonset/kubeadm-kuberouter-all-features.yaml
-#kubectl -n kube-system delete ds kube-proxy
-# clean up existing ipvs and ip-tables rules
-#docker run --privileged -v /lib/modules:/lib/modules --net=host k8s.gcr.io/kube-proxy-amd64:v1.10.2 kube-proxy --cleanup
-
+kubectl create namespace nginx-ingress
+helm install nginx-ingress --namespace nginx-ingress stable/nginx-ingress --set rbac.create=true --set controller.hostNetwork=true

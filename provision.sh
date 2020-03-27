@@ -4,12 +4,14 @@ KUBE_VERSION="1.17.4"; export KUBE_VERSION
 KUBE_PKG_VERSION="${KUBE_VERSION}-00"; export KUBE_PKG_VERSION
 DOCKER_VERSION="5:19.03.8~3-0~debian-$(lsb_release -cs)"; export DOCKER_VERSION
 PATH=$PATH:/usr/local/bin; export PATH
+DEBIAN_FRONTEND=noninteractive; export DEBIAN_FRONTEND
 
 echo 'Acquire::http { Proxy "http://192.168.253.99:3142"; };' > /etc/apt/apt.conf.d/02proxy
 
+# kernel setup
 apt-get update
-apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
 dpkg --remove docker docker-engine docker.io containerd runc
+apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
 
 # k8s repo setup
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
@@ -44,7 +46,7 @@ cat > /etc/docker/daemon.json <<EOF
     "overlay2.override_kernel_check=true"
   ],
   "registry-mirrors": ["http://192.168.253.99:5000"],
-  "insecure-registries" : ["192.168.253.99:5000"]
+  "insecure-registries" : ["192.168.253.99:5000","192.168.253.99:5001"]
 }
 EOF
 mkdir -p /etc/systemd/system/docker.service.d
@@ -72,15 +74,11 @@ if [ "master" = `hostname -s` ]; then
     --kubernetes-version=v${KUBE_VERSION} \
     --token=abcdef.0123456789abcdef \
     --apiserver-advertise-address=192.168.253.100 \
-    --pod-network-cidr=10.244.0.0/16
+    --pod-network-cidr=10.217.0.0/16
+    #--skip-phases=addon/kube-proxy
 fi
 
 # install helm
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
 chmod 700 get_helm.sh
 ./get_helm.sh
-
-# Prepare Install of VirtualBox Guest Additions
-#mount -r /dev/cdrom /media
-#/media/VBoxLinuxAdditions.run --noexec
-

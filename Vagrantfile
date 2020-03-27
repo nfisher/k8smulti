@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "debian/stretch64"
+  config.vm.box = "debian/buster64"
 
   config.vm.provider "virtualbox" do |vb|
     vb.cpus = 2
@@ -13,16 +13,15 @@ Vagrant.configure("2") do |config|
     vb.customize ["modifyvm", :id, "--vtxux", "on"]
   end
 
-
   #
   # cache configuration
   #
   config.vm.define "cache" do |node|
     node.vm.provider "virtualbox" do |vb|
+      vb.cpus = 1
       vb.memory = "256"
     end
-
-    node.vm.network "forwarded_port", guest: 5000, host: 5000
+    
     node.vm.network "private_network", ip: "192.168.253.99"
     node.vm.hostname = "cache"
 
@@ -41,6 +40,7 @@ Vagrant.configure("2") do |config|
     node.vm.network "private_network", ip: "192.168.253.100"
     node.vm.hostname = "master"
 
+    node.vm.provision :shell, inline: "sed 's/127\.0\.0\.1.*master.*/192\.168\.253\.100 master/' -i /etc/hosts"
     node.vm.provision "shell", path: "provision.sh"
     node.vm.provision "shell", inline: <<-EOT
       echo 'KUBELET_EXTRA_ARGS=--node-ip=192.168.253.100' > /etc/default/kubelet
@@ -62,6 +62,7 @@ Vagrant.configure("2") do |config|
     node.vm.network "private_network", ip: "192.168.253.101"
     node.vm.hostname = "node01"
 
+    node.vm.provision :shell, inline: "sed 's/127\.0\.0\.1.*node01.*/192\.168\.253\.101 node01/' -i /etc/hosts"
     node.vm.provision "shell", path: "provision.sh"
     node.vm.provision "shell", inline: <<-EOT
       echo 'KUBELET_EXTRA_ARGS=--node-ip=192.168.253.101' > /etc/default/kubelet
@@ -83,6 +84,7 @@ Vagrant.configure("2") do |config|
     node.vm.network "private_network", ip: "192.168.253.102"
     node.vm.hostname = "node02"
 
+    node.vm.provision :shell, inline: "sed 's/127\.0\.0\.1.*node02.*/192\.168\.253\.102 node02/' -i /etc/hosts"
     node.vm.provision "shell", path: "provision.sh"
     node.vm.provision "shell", inline: <<-EOT
       echo 'KUBELET_EXTRA_ARGS=--node-ip=192.168.253.102' > /etc/default/kubelet
