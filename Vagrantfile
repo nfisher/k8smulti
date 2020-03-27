@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "centos/7"
+  config.vm.box = "debian/stretch64"
 
   config.vm.provider "virtualbox" do |vb|
     vb.cpus = 2
@@ -11,15 +11,23 @@ Vagrant.configure("2") do |config|
     vb.customize ["modifyvm", :id, "--largepages", "on"]
     vb.customize ["modifyvm", :id, "--vtxvpid", "on"]
     vb.customize ["modifyvm", :id, "--vtxux", "on"]
-    vb.customize ["storageattach", :id,
-                  "--storagectl", "IDE",
-                  "--port", "0",
-                  "--device", "1",
-                  "--type", "dvddrive",
-                  "--medium", "/Applications/VirtualBox.app/Contents/MacOS/VBoxGuestAdditions.iso"]
   end
 
-  config.vm.provision "shell", path: "provision.sh"
+
+  #
+  # cache configuration
+  #
+  config.vm.define "cache" do |node|
+    node.vm.provider "virtualbox" do |vb|
+      vb.memory = "256"
+    end
+
+    node.vm.network "forwarded_port", guest: 5000, host: 5000
+    node.vm.network "private_network", ip: "192.168.253.99"
+    node.vm.hostname = "cache"
+
+    node.vm.provision "shell", path: "cache.sh"
+  end
 
 
   #
@@ -33,8 +41,9 @@ Vagrant.configure("2") do |config|
     node.vm.network "private_network", ip: "192.168.253.100"
     node.vm.hostname = "master"
 
+    node.vm.provision "shell", path: "provision.sh"
     node.vm.provision "shell", inline: <<-EOT
-      echo 'KUBELET_EXTRA_ARGS=--node-ip=192.168.253.100' > /etc/sysconfig/kubelet
+      echo 'KUBELET_EXTRA_ARGS=--node-ip=192.168.253.100' > /etc/default/kubelet
       systemctl daemon-reload
       systemctl restart kubelet.service
     EOT
@@ -53,8 +62,9 @@ Vagrant.configure("2") do |config|
     node.vm.network "private_network", ip: "192.168.253.101"
     node.vm.hostname = "node01"
 
+    node.vm.provision "shell", path: "provision.sh"
     node.vm.provision "shell", inline: <<-EOT
-      echo 'KUBELET_EXTRA_ARGS=--node-ip=192.168.253.101' > /etc/sysconfig/kubelet
+      echo 'KUBELET_EXTRA_ARGS=--node-ip=192.168.253.101' > /etc/default/kubelet
       systemctl daemon-reload
       systemctl restart kubelet.service
       kubeadm join 192.168.253.100:6443 --token abcdef.0123456789abcdef --discovery-token-unsafe-skip-ca-verification
@@ -73,8 +83,9 @@ Vagrant.configure("2") do |config|
     node.vm.network "private_network", ip: "192.168.253.102"
     node.vm.hostname = "node02"
 
+    node.vm.provision "shell", path: "provision.sh"
     node.vm.provision "shell", inline: <<-EOT
-      echo 'KUBELET_EXTRA_ARGS=--node-ip=192.168.253.102' > /etc/sysconfig/kubelet
+      echo 'KUBELET_EXTRA_ARGS=--node-ip=192.168.253.102' > /etc/default/kubelet
       systemctl daemon-reload
       systemctl restart kubelet.service
       kubeadm join 192.168.253.100:6443 --token abcdef.0123456789abcdef --discovery-token-unsafe-skip-ca-verification

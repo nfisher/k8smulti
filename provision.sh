@@ -1,41 +1,34 @@
 #!/bin/bash -eux
 
-KUBE_VERSION="1.14.7"; export KUBE_VERSION
-K8S_RPM="${KUBE_VERSION}-0"; export K8S_RPM
-DOCKER_VERSION="18.09.9-3.el7"; export DOCKER_VERSION
+KUBE_VERSION="1.17.4"; export KUBE_VERSION
+KUBE_PKG_VERSION="${KUBE_VERSION}-00"; export KUBE_PKG_VERSION
+DOCKER_VERSION="5:19.03.8~3-0~debian-$(lsb_release -cs)"; export DOCKER_VERSION
 PATH=$PATH:/usr/local/bin; export PATH
 
+echo 'Acquire::http { Proxy "http://192.168.253.99:3142"; };' > /etc/apt/apt.conf.d/02proxy
+
+apt-get update
+apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
+dpkg --remove docker docker-engine docker.io containerd runc
+
 # k8s repo setup
-cat <<EOF > /etc/yum.repos.d/kubernetes.repo
-[kubernetes]
-name=Kubernetes
-baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
-enabled=1
-gpgcheck=1
-repo_gpgcheck=1
-gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-exclude=kube*
-EOF
-yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-yum install -y epel-release
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
+echo "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+
+apt-get update
 
 # disable swap
 swapoff -a
 grep -v swap /etc/fstab > /etc/fstab.tmp && mv /etc/fstab.tmp /etc/fstab
 
-# Set SELinux in permissive mode (effectively disabling it)
-setenforce 0
-sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
-
 # install OS packages
-yum install -y --disableexcludes=kubernetes \
-  yum-utils device-mapper-persistent-data lvm2 \
-  ipvsadm net-tools htop \
-  kernel-devel kernel-headers kernel \
-  gcc make \
-  docker-ce-${DOCKER_VERSION} \
-  kubelet-${K8S_RPM} kubeadm-${K8S_RPM} kubectl-${K8S_RPM}
-
+apt-get install -y \
+  lvm2 net-tools htop \
+  containerd.io=1.2.10-3 \
+  docker-ce=${DOCKER_VERSION} docker-ce-cli=${DOCKER_VERSION} \
+  kubelet=${KUBE_PKG_VERSION} kubeadm=${KUBE_PKG_VERSION} kubectl=${KUBE_PKG_VERSION}
 
 # Docker daemon config
 mkdir -p /etc/docker
@@ -49,9 +42,14 @@ cat > /etc/docker/daemon.json <<EOF
   "storage-driver": "overlay2",
   "storage-opts": [
     "overlay2.override_kernel_check=true"
-  ]
+  ],
+  "registry-mirrors": ["http://192.168.253.99:5000"],
+  "insecure-registries" : ["192.168.253.99:5000"]
 }
 EOF
+mkdir -p /etc/systemd/system/docker.service.d
+systemctl daemon-reload
+systemctl restart docker
 
 # networking config
 cat <<EOF >  /etc/sysctl.d/k8s.conf
@@ -62,9 +60,6 @@ net.ipv6.conf.default.disable_ipv6=1
 EOF
 sysctl --system
 modprobe ip_vs
-
-# disable firewall
-systemctl disable --now firewalld
 
 # enable docker
 systemctl enable --now docker
@@ -81,9 +76,11 @@ if [ "master" = `hostname -s` ]; then
 fi
 
 # install helm
-curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
 
 # Prepare Install of VirtualBox Guest Additions
-mount -r /dev/cdrom /media
-/media/VBoxLinuxAdditions.run --noexec
+#mount -r /dev/cdrom /media
+#/media/VBoxLinuxAdditions.run --noexec
 
