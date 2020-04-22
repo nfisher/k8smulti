@@ -3,7 +3,7 @@
 KUBELET_IP=$1; export KUBELET_IP
 KUBE_VERSION="1.17.4"; export KUBE_VERSION
 KUBE_PKG_VERSION="${KUBE_VERSION}-00"; export KUBE_PKG_VERSION
-DOCKER_VERSION="5:19.03.8~3-0~debian-$(lsb_release -cs)"; export DOCKER_VERSION
+DOCKER_VERSION="5:19.03.8~3-0~ubuntu-bionic"; export DOCKER_VERSION
 PATH=$PATH:/usr/local/bin; export PATH
 DEBIAN_FRONTEND=noninteractive; export DEBIAN_FRONTEND
 
@@ -16,9 +16,10 @@ apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-prop
 
 # k8s repo setup
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
 echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
-echo "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
 apt-get update
 

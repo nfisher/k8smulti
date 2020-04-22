@@ -2,10 +2,9 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "debian/buster64"
+  config.vm.box = "hashicorp/bionic64"
 
   config.vm.provider "virtualbox" do |vb|
-    vb.cpus = 2
     vb.customize ["modifyvm", :id, "--audio", "none"]
     vb.customize ["modifyvm", :id, "--paravirtprovider", "kvm"]
     vb.customize ["modifyvm", :id, "--largepages", "on"]
@@ -17,14 +16,10 @@ Vagrant.configure("2") do |config|
   # cache configuration
   #
   config.vm.define "cache" do |node|
-    node.vm.provider "virtualbox" do |vb|
-      vb.cpus = 1
-      vb.memory = "256"
-    end
+    resources(node, 1, 512)
 
     node.vm.network "private_network", ip: "192.168.253.99"
     node.vm.hostname = "cache"
-
     node.vm.provision "shell", path: "cache.sh"
   end
 
@@ -33,9 +28,7 @@ Vagrant.configure("2") do |config|
   # master configuration
   #
   config.vm.define "master" do |node|
-    node.vm.provider "virtualbox" do |vb|
-      vb.memory = "1536"
-    end
+    resources(node, 2, 2048)
 
     node.vm.network "private_network", ip: "192.168.253.100"
     node.vm.hostname = "master"
@@ -50,9 +43,7 @@ Vagrant.configure("2") do |config|
   # node01 configuration
   #
   config.vm.define "node01" do |node|
-    node.vm.provider "virtualbox" do |vb|
-      vb.memory = "4096"
-    end
+    resources(node, 2, 4096)
 
     node.vm.network "private_network", ip: "192.168.253.101"
     node.vm.hostname = "node01"
@@ -66,9 +57,7 @@ Vagrant.configure("2") do |config|
   # node02 configuration
   #
   config.vm.define "node02" do |node|
-    node.vm.provider "virtualbox" do |vb|
-      vb.memory = "4096"
-    end
+    resources(node, 2, 4096)
 
     node.vm.network "private_network", ip: "192.168.253.102"
     node.vm.hostname = "node02"
@@ -77,4 +66,16 @@ Vagrant.configure("2") do |config|
     node.vm.provision "shell", path: "provision.sh", args: ["192.168.253.102"]
   end
 
+end
+
+def resources(node, cpu, memory)
+    node.vm.provider "virtualbox" do |vb|
+      vb.cpus = cpu.to_i
+      vb.memory = memory.to_s
+    end
+
+    node.vm.provider "vmware_desktop" do |v|
+      v.vmx["numvcpus"] = cpu.to_s
+      v.vmx["memsize"] = memory.to_s
+    end
 end

@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 
-DOCKER_VERSION="18.06.3~ce~3-0~debian"; export DOCKER_VERSION
+DOCKER_VERSION="18.06.3~ce~3-0~ubuntu"; export DOCKER_VERSION
 
 apt-get update
 apt-get install -y apt-cacher-ng
@@ -13,8 +13,11 @@ apt-get update
 apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
 dpkg --remove docker docker-engine docker.io containerd runc
 
-curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
-echo "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+#curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+#echo "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
 
 apt-get update
 apt-get install -y docker-ce=${DOCKER_VERSION}

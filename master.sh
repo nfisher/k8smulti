@@ -15,10 +15,10 @@ docker run --privileged -v /lib/modules:/lib/modules --net=host k8s.gcr.io/kube-
 
 # install helm things
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-chmod 700 get_helm.sh
+chmod 755 get_helm.sh
 ./get_helm.sh
 helm repo add stable https://kubernetes-charts.storage.googleapis.com/
 helm repo update
 kubectl create namespace nginx-ingress
 helm install nginx-ingress --namespace nginx-ingress stable/nginx-ingress --set rbac.create=true --set controller.hostNetwork=true
-helm install --namespace kube-system metrics-server stable/metrics-server --set args[0]=--kubelet-insecure-tls --set args[1]=--kubelet-insecure-tls
+helm install --namespace kube-system metrics-server stable/metrics-server --values=/vagrant/metrics-server-values.yaml
