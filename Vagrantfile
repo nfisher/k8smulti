@@ -21,7 +21,7 @@ Vagrant.configure("2") do |config|
       vb.cpus = 1
       vb.memory = "256"
     end
-    
+
     node.vm.network "private_network", ip: "192.168.253.99"
     node.vm.hostname = "cache"
 
@@ -40,13 +40,8 @@ Vagrant.configure("2") do |config|
     node.vm.network "private_network", ip: "192.168.253.100"
     node.vm.hostname = "master"
 
-    node.vm.provision :shell, inline: "sed 's/127\.0\.0\.1.*master.*/192\.168\.253\.100 master/' -i /etc/hosts"
-    node.vm.provision "shell", path: "provision.sh"
-    node.vm.provision "shell", inline: <<-EOT
-      echo 'KUBELET_EXTRA_ARGS=--node-ip=192.168.253.100' > /etc/default/kubelet
-      systemctl daemon-reload
-      systemctl restart kubelet.service
-    EOT
+    node.vm.provision :shell, inline: "sed 's/127\\.0\\.1\\.1.*master.*/192\\.168\\.253\\.100 master/' -i /etc/hosts"
+    node.vm.provision "shell", path: "provision.sh", args: ["192.168.253.100"]
     node.vm.provision "shell", path: "master.sh"
   end
 
@@ -62,14 +57,8 @@ Vagrant.configure("2") do |config|
     node.vm.network "private_network", ip: "192.168.253.101"
     node.vm.hostname = "node01"
 
-    node.vm.provision :shell, inline: "sed 's/127\.0\.0\.1.*node01.*/192\.168\.253\.101 node01/' -i /etc/hosts"
-    node.vm.provision "shell", path: "provision.sh"
-    node.vm.provision "shell", inline: <<-EOT
-      echo 'KUBELET_EXTRA_ARGS=--node-ip=192.168.253.101' > /etc/default/kubelet
-      systemctl daemon-reload
-      systemctl restart kubelet.service
-      kubeadm join 192.168.253.100:6443 --token abcdef.0123456789abcdef --discovery-token-unsafe-skip-ca-verification
-    EOT
+    node.vm.provision :shell, inline: "sed 's/127\\.0\\.1\\.1.*node01.*/192\\.168\\.253\\.101 node01/' -i /etc/hosts"
+    node.vm.provision "shell", path: "provision.sh", args: ["192.168.253.101"]
   end
 
 
@@ -84,14 +73,8 @@ Vagrant.configure("2") do |config|
     node.vm.network "private_network", ip: "192.168.253.102"
     node.vm.hostname = "node02"
 
-    node.vm.provision :shell, inline: "sed 's/127\.0\.0\.1.*node02.*/192\.168\.253\.102 node02/' -i /etc/hosts"
-    node.vm.provision "shell", path: "provision.sh"
-    node.vm.provision "shell", inline: <<-EOT
-      echo 'KUBELET_EXTRA_ARGS=--node-ip=192.168.253.102' > /etc/default/kubelet
-      systemctl daemon-reload
-      systemctl restart kubelet.service
-      kubeadm join 192.168.253.100:6443 --token abcdef.0123456789abcdef --discovery-token-unsafe-skip-ca-verification
-    EOT
+    node.vm.provision :shell, inline: "sed 's/127\\.0\\.1\\.1.*node02.*/192\\.168\\.253\\.102 node02/' -i /etc/hosts"
+    node.vm.provision "shell", path: "provision.sh", args: ["192.168.253.102"]
   end
 
 end

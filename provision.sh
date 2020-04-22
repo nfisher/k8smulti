@@ -1,5 +1,6 @@
 #!/bin/bash -eux
 
+KUBELET_IP=$1; export KUBELET_IP
 KUBE_VERSION="1.17.4"; export KUBE_VERSION
 KUBE_PKG_VERSION="${KUBE_VERSION}-00"; export KUBE_PKG_VERSION
 DOCKER_VERSION="5:19.03.8~3-0~debian-$(lsb_release -cs)"; export DOCKER_VERSION
@@ -66,8 +67,12 @@ modprobe ip_vs
 # enable docker
 systemctl enable --now docker
 
+echo "KUBELET_EXTRA_ARGS=--node-ip=${KUBELET_IP}" > /etc/default/kubelet
+
 # enable the kubelet
 systemctl enable --now kubelet
+systemctl daemon-reload
+systemctl restart kubelet.service
 
 if [ "master" = `hostname -s` ]; then
   kubeadm init \
@@ -75,10 +80,10 @@ if [ "master" = `hostname -s` ]; then
     --token=abcdef.0123456789abcdef \
     --apiserver-advertise-address=192.168.253.100 \
     --pod-network-cidr=10.217.0.0/16
-    #--skip-phases=addon/kube-proxy
+    #--pod-network-cidr=10.244.0.0/16
+else
+  kubeadm join \
+    192.168.253.100:6443 \
+    --token abcdef.0123456789abcdef \
+    --discovery-token-unsafe-skip-ca-verification
 fi
-
-# install helm
-curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-chmod 700 get_helm.sh
-./get_helm.sh
