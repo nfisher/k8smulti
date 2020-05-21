@@ -1,7 +1,7 @@
 #!/bin/bash -eux
 
 KUBELET_IP=$1; export KUBELET_IP
-KUBE_VERSION="1.17.4"; export KUBE_VERSION
+KUBE_VERSION="1.18.3"; export KUBE_VERSION
 KUBE_PKG_VERSION="${KUBE_VERSION}-00"; export KUBE_PKG_VERSION
 DOCKER_VERSION="5:19.03.8~3-0~ubuntu-bionic"; export DOCKER_VERSION
 PATH=$PATH:/usr/local/bin; export PATH
@@ -9,10 +9,8 @@ DEBIAN_FRONTEND=noninteractive; export DEBIAN_FRONTEND
 
 echo 'Acquire::http { Proxy "http://192.168.253.99:3142"; };' > /etc/apt/apt.conf.d/02proxy
 
-# kernel setup
-apt-get update
+
 dpkg --remove docker docker-engine docker.io containerd runc
-apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
 
 # k8s repo setup
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
@@ -21,14 +19,15 @@ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
-apt-get update
+
 
 # disable swap
 swapoff -a
 grep -v swap /etc/fstab > /etc/fstab.tmp && mv /etc/fstab.tmp /etc/fstab
 
 # install OS packages
-apt-get install -y \
+apt-get update -qq
+apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common \
   lvm2 net-tools htop \
   containerd.io=1.2.10-3 \
   docker-ce=${DOCKER_VERSION} docker-ce-cli=${DOCKER_VERSION} \
@@ -76,11 +75,19 @@ systemctl daemon-reload
 systemctl restart kubelet.service
 
 if [ "master" = `hostname -s` ]; then
+  kubeadm config images pull --kubernetes-version=v${KUBE_VERSION}
+  for IMG in $(kubeadm config images list --kubernetes-version=v${KUBE_VERSION} 2> /dev/null | cut -d/ -f2);
+  do
+    docker tag k8s.gcr.io/$IMG 192.168.253.99:5001/$IMG
+    docker push 192.168.253.99:5001/$IMG
+  done
+
   kubeadm init \
     --kubernetes-version=v${KUBE_VERSION} \
     --token=abcdef.0123456789abcdef \
     --apiserver-advertise-address=192.168.253.100 \
-    --pod-network-cidr=10.217.0.0/16
+    --pod-network-cidr=10.217.0.0/16 \
+    --image-repository=192.168.253.99:5001
     #--pod-network-cidr=10.244.0.0/16
 else
   kubeadm join \
