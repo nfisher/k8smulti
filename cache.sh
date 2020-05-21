@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 
-DOCKER_VERSION="18.06.3~ce~3-0~ubuntu"; export DOCKER_VERSION
+source /vagrant/versions.rc
 
 apt-get update
 apt-get install -y apt-cacher-ng
@@ -16,11 +16,13 @@ dpkg --remove docker docker-engine docker.io containerd runc
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
-#curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
-#echo "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
 apt-get update
-apt-get install -y docker-ce=${DOCKER_VERSION}
+apt-get install -y \
+  docker-ce=${DOCKER_VERSION} \
+  kubeadm=${KUBE_PKG_VERSION}
 
 cat > /etc/docker/registry.yml <<EOF
 version: 0.1
@@ -98,5 +100,12 @@ health:
     threshold: 3
 EOF
 
-docker run -d -p 5000:5000 --restart=always -v /etc/docker/registry.yml:/etc/docker/registry/config.yml --name registry registry:2.7
 docker run -d -p 5001:5000 --restart=always --name local-registry registry:2.7
+docker run -d -p 5000:5000 --restart=always -v /etc/docker/registry.yml:/etc/docker/registry/config.yml --name cache-registry registry:2.7
+
+kubeadm config images pull --kubernetes-version=v${KUBE_VERSION}
+for IMG in $(kubeadm config images list --kubernetes-version=v${KUBE_VERSION} 2> /dev/null | cut -d/ -f2);
+do
+  docker tag k8s.gcr.io/$IMG 192.168.253.99:5001/$IMG
+  docker push 192.168.253.99:5001/$IMG
+done

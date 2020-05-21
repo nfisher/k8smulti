@@ -1,0 +1,4 @@
+export KUBE_VERSION="1.18.3"
+export KUBE_PKG_VERSION="${KUBE_VERSION}-00"
+export DOCKER_VERSION="5:19.03.8~3-0~ubuntu-bionic"
+export CONTAINERD_VERSION="1.2.10-3"

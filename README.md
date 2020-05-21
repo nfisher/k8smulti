@@ -23,7 +23,8 @@ Provides a multinode cluster on your local machine.
  2. Run `vagrant up master` to provision the master node.
  3. Run `vagrant ssh master` and check the master is ready with `kubectl get nodes -o wide`.
  4. Run `vagrant up` to provision the nodes.
- 5. Run `vagrant ssh master` and check the nodes are ready with `kubectl get nodes -o wide`.
+ 5. Run `vagrant ssh master`, check the nodes are ready with `kubectl get nodes -o wide`.
+ 6. To browse grafana add `192.168.253.101 grafana.k8smulti.local` to `/etc/hosts`.
 
 **Note**: Kubernetes config is available in `/home/vagrant/.kube/config` on the master.
 
