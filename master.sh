@@ -29,7 +29,7 @@ helm install --namespace nginx-ingress nginx-ingress stable/nginx-ingress --set 
 kubectl create namespace loki-grafana
 helm install --namespace loki-grafana loki loki/loki-stack --set grafana.enabled=true,prometheus.enabled=true,prometheus.alertmanager.persistentVolume.enabled=false,prometheus.server.persistentVolume.enabled=false
 
-cat > /tmp/grafana-ingress.yml <<EOF
+kubectl apply -f - <<EOF
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -47,7 +47,6 @@ spec:
               servicePort: 80
             path: /
 EOF
-kubectl apply -f /tmp/grafana-ingress.yml
 
 echo "Grafana admin password:"
 kubectl get secret --namespace loki-grafana loki-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
