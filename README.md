@@ -28,6 +28,17 @@ Provides a multinode cluster on your local machine.
 
 **Note**: Kubernetes config is available in `/home/vagrant/.kube/config` on the master.
 
+## Networking Overview
+
+### Calico - CIDR Ranges
+
+| Name           | Network          |
+| -------------- | ---------------- |
+| Host           | 192.168.253.0/24 |
+| Pods (default) | 10.217.0.0/16    |
+| Pods (pool1)   | 10.218.1.0/24    |
+| Pods (pool2)   | 10.218.2.0/24    |
+
 ## References
 
 - [kube-router](https://github.com/cloudnativelabs/kube-router/blob/master/docs/index.md) - network overlay.
