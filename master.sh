@@ -53,3 +53,6 @@ spec:
             path: /
 EOF
 kubectl apply -f /tmp/grafana-ingress.yml
+
+echo "Grafana admin password:"
+kubectl get secret --namespace loki-grafana loki-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
