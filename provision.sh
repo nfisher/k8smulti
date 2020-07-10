@@ -13,8 +13,8 @@ echo 'Acquire::http { Proxy "http://192.168.253.99:3142"; };' > /etc/apt/apt.con
 dpkg --remove docker docker-engine docker.io containerd runc
 
 # k8s repo setup
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+curl -q -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+curl -q -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 
 echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
@@ -73,13 +73,10 @@ systemctl daemon-reload
 systemctl restart kubelet.service
 
 if [ "master" = `hostname -s` ]; then
-  kubeadm init \
-    --kubernetes-version=v${KUBE_VERSION} \
-    --token=abcdef.0123456789abcdef \
-    --apiserver-advertise-address=192.168.253.100 \
-    --image-repository=192.168.253.99:5001 \
-    --pod-network-cidr=10.217.0.0/16
-    #--pod-network-cidr=10.244.0.0/16
+  cp /vagrant/cluster.yaml .
+  echo "kubernetesVersion: v${KUBE_VERSION}" >> cluster.yaml
+  kubeadm init --config=cluster.yaml
+    #--pod-network-cidr=10.217.0.0/16
 else
   kubeadm join \
     192.168.253.100:6443 \

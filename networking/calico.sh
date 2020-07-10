@@ -24,7 +24,7 @@ metadata:
   name: pool02
 spec:
   cidr: 10.218.2.0/24
-  vxlanMode: Always
+  vxlanMode: CrossSubnet
   natOutgoing: true
 EOT
 
@@ -69,8 +69,10 @@ spec:
       - 127.0.0.1/32
 EOT
 
+
+# calicoctl apply -f -
+cat > /tmp/worker-policy.yaml << EOF
 # secure worker nodes
-calicoctl apply -f - << EOF
 apiVersion: projectcalico.org/v3
 kind: GlobalNetworkPolicy
 metadata:
@@ -91,10 +93,8 @@ spec:
     destination:
       ports:
       - 10250
-EOF
-
+---
 # secure host
-calicoctl apply -f - << EOF
 apiVersion: projectcalico.org/v3
 kind: GlobalNetworkPolicy
 metadata:

@@ -9,11 +9,13 @@ cp /etc/kubernetes/admin.conf /home/vagrant/.kube/config
 cp /etc/kubernetes/admin.conf /vagrant/config
 chown -R vagrant:vagrant /home/vagrant/.kube
 
+kubectl apply -f /vagrant/psp.yaml
+
 # install calico as k8s network
-source /vagrant/networking/calico.sh
+source /vagrant/networking/flannel.sh
 
 # install helm things
-curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+curl -q -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
 chmod 755 get_helm.sh
 ./get_helm.sh
 
@@ -24,6 +26,9 @@ helm repo update
 
 # install some useful tools
 helm install --namespace kube-system metrics-server stable/metrics-server --values=/vagrant/metrics-server-values.yaml
+
+exit 0
+
 kubectl create namespace nginx-ingress
 helm install --namespace nginx-ingress nginx-ingress stable/nginx-ingress --set rbac.create=true --set controller.hostNetwork=true
 kubectl create namespace loki-grafana
