@@ -4,6 +4,10 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "hashicorp/bionic64"
 
+  config.vm.provider :vmware_desktop do |v|
+    v.ssh_info_public = true
+  end
+
   config.vm.provider "virtualbox" do |vb|
     vb.customize ["modifyvm", :id, "--audio", "none"]
     vb.customize ["modifyvm", :id, "--paravirtprovider", "kvm"]
