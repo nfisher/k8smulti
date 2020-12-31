@@ -20,7 +20,7 @@ chmod 755 get_helm.sh
 ./get_helm.sh
 
 # add helm repos
-helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+helm repo add stable https://charts.helm.sh/stable
 helm repo add loki https://grafana.github.io/loki/charts
 helm repo update
 
