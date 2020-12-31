@@ -11,7 +11,7 @@ chown -R vagrant:vagrant /home/vagrant/.kube
 
 kubectl apply -f /vagrant/psp.yaml
 
-# install calico as k8s network
+# install CNI network
 source /vagrant/networking/flannel.sh
 
 # install helm things
