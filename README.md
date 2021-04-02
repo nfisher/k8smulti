@@ -5,12 +5,12 @@ Provides a multinode cluster on your local machine.
 ## Provides
 
   - 1 x master (2vcpu & 2GB ram)
-  - 2 x nodes (2vcpu & 4GB ram)
-  - kube-router - service proxy, firewall, and pod networking.
-  - k8s v1.14.2.
-  - helm 2.x.
+  - 2 x worker nodes (2vcpu & 4GB ram)
+  - 1 x cache (1vcpu & 512MB ram)
+  - k8s v1.20.5.
+  - helm 3.x.
   - API - 192.168.253.100:6443.
-  - kube config - ~vagrant/.kube/config
+  - kube config - k8smulti/config
 
 ## Required Software
 
@@ -26,7 +26,7 @@ Provides a multinode cluster on your local machine.
  5. Run `vagrant ssh master`, check the nodes are ready with `kubectl get nodes -o wide`.
  6. To browse grafana add `192.168.253.101 grafana.k8smulti.local` to `/etc/hosts`.
 
-**Note**: Kubernetes config is available in `/home/vagrant/.kube/config` on the master.
+**Note**: Kubernetes config is available on the host in `/home/vagrant/.kube/config` on master or `config` in the projects root.
 
 ## Networking Overview
 
