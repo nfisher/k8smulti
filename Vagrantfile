@@ -2,11 +2,11 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "hashicorp/bionic64"
+  config.vm.box = "ubuntu/focal64"
 
+  # VMWare private IP allocation seems borked on latest OSX. Advise using VirtualBox.
   config.vm.provider :vmware_desktop do |v|
     v.ssh_info_public = true
-    config.vm.network :forwarded_port, guest: 22, host: 2222, id: "ssh", disabled: true
   end
 
   config.vm.provider "virtualbox" do |vb|

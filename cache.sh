@@ -3,7 +3,7 @@
 source /vagrant/versions.rc
 
 apt-get update
-apt-get install -y apt-cacher-ng
+DEBIAN_FRONTEND=noninteractive apt-get install -y apt-cacher-ng
 echo 'PassThroughPattern: ^(.*):443$' >> /etc/apt-cacher-ng/acng.conf
 service apt-cacher-ng restart
 
