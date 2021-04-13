@@ -38,7 +38,7 @@ Vagrant.configure("2") do |config|
     node.vm.network "private_network", ip: "192.168.253.100"
     node.vm.hostname = "master"
 
-    node.vm.provision :shell, inline: "sed 's/127\\.0\\.1\\.1.*master.*/192\\.168\\.253\\.100 master/' -i /etc/hosts"
+    node.vm.provision :shell, inline: "sed 's/127\\.0\\.[0-9]\\.1.*master.*/192\\.168\\.253\\.100 master/' -i /etc/hosts"
     node.vm.provision "shell", path: "provision.sh", args: ["192.168.253.100"]
     node.vm.provision "shell", path: "master.sh"
   end
@@ -53,7 +53,7 @@ Vagrant.configure("2") do |config|
     node.vm.network "private_network", ip: "192.168.253.101"
     node.vm.hostname = "node01"
 
-    node.vm.provision :shell, inline: "sed 's/127\\.0\\.1\\.1.*node01.*/192\\.168\\.253\\.101 node01/' -i /etc/hosts"
+    node.vm.provision :shell, inline: "sed 's/127\\.0\\.[0-9]\\.1.*node01.*/192\\.168\\.253\\.101 node01/' -i /etc/hosts"
     node.vm.provision "shell", path: "provision.sh", args: ["192.168.253.101"]
   end
 
@@ -67,7 +67,7 @@ Vagrant.configure("2") do |config|
     node.vm.network "private_network", ip: "192.168.253.102"
     node.vm.hostname = "node02"
 
-    node.vm.provision :shell, inline: "sed 's/127\\.0\\.1\\.1.*node02.*/192\\.168\\.253\\.102 node02/' -i /etc/hosts"
+    node.vm.provision :shell, inline: "sed 's/127\\.0\\.[0-9]\\.1.*node02.*/192\\.168\\.253\\.102 node02/' -i /etc/hosts"
     node.vm.provision "shell", path: "provision.sh", args: ["192.168.253.102"]
   end
 

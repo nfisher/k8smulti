@@ -12,7 +12,7 @@ chown -R vagrant:vagrant /home/vagrant/.kube
 kubectl apply -f /vagrant/psp.yaml
 
 # install CNI network
-source /vagrant/networking/kube-router.sh
+source /vagrant/networking/flannel.sh
 
 # install helm things
 curl -q -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
