@@ -29,6 +29,7 @@ clusterName: kubernetes
 controllerManager: {}
 dns:
   type: CoreDNS
+  imageRepository: 192.168.253.99:5001/coredns
 etcd:
   local:
     dataDir: /var/lib/etcd

@@ -125,7 +125,7 @@ docker run -d -p 5001:5000 --restart=always --name local-registry registry:2.7
 docker run -d -p 5000:5000 --restart=always -v /etc/docker/registry.yml:/etc/docker/registry/config.yml --name cache-registry registry:2.7
 
 kubeadm config images pull --kubernetes-version=v${KUBE_VERSION}
-for IMG in $(kubeadm config images list --kubernetes-version=v${KUBE_VERSION} 2> /dev/null | cut -d/ -f2);
+for IMG in $(kubeadm config images list --kubernetes-version=v${KUBE_VERSION} 2> /dev/null | cut -c 12-);
 do
   docker tag k8s.gcr.io/$IMG 192.168.253.99:5001/$IMG
   docker push 192.168.253.99:5001/$IMG

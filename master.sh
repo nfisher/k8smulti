@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/bin/bash -eux
 
 PATH=$PATH:/usr/local/bin; export PATH
 KUBECONFIG=/etc/kubernetes/admin.conf; export KUBECONFIG
@@ -21,11 +21,10 @@ chmod 755 get_helm.sh
 
 # add helm repos
 helm repo add stable https://charts.helm.sh/stable
-helm repo add loki https://grafana.github.io/loki/charts
 helm repo update
 
 # install some useful tools
-helm install --namespace kube-system metrics-server stable/metrics-server --values=/vagrant/metrics-server-values.yaml
+# helm install --namespace kube-system metrics-server stable/metrics-server --values=/vagrant/metrics-server-values.yaml
 
 exit 0
 
