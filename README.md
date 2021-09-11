@@ -4,6 +4,7 @@ Provides a multinode cluster on your local machine.
 
 ## Provides
 
+  - 1 x cache (1vcpu & 512MB ram)
   - 1 x master (2vcpu & 2GB ram)
   - 2 x worker nodes (2vcpu & 4GB ram)
   - 1 x cache (1vcpu & 512MB ram)
@@ -20,11 +21,9 @@ Provides a multinode cluster on your local machine.
 ## Getting Started
 
  1. Install the required software.
- 2. Run `vagrant up master` to provision the master node.
+ 2. Run `vagrant up` to provision the nodes.
  3. Run `vagrant ssh master` and check the master is ready with `kubectl get nodes -o wide`.
- 4. Run `vagrant up` to provision the nodes.
- 5. Run `vagrant ssh master`, check the nodes are ready with `kubectl get nodes -o wide`.
- 6. To browse grafana add `192.168.253.101 grafana.k8smulti.local` to `/etc/hosts`.
+ 4. Run `vagrant ssh master`, check the nodes are ready with `kubectl get nodes -o wide`.
 
 **Note**: Kubernetes config is available on the host in `/home/vagrant/.kube/config` on master or `config` in the projects root.
 
