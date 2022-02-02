@@ -9,7 +9,7 @@ bootstrapTokens:
   - signing
   - authentication
 localAPIEndpoint:
-  advertiseAddress: 192.168.253.100
+  advertiseAddress: 192.168.56.100
   bindPort: 6443
 nodeRegistration:
 #  criSocket: /var/run/dockershim.sock
@@ -29,11 +29,11 @@ clusterName: kubernetes
 controllerManager: {}
 dns:
   type: CoreDNS
-  imageRepository: 192.168.253.99:5001/coredns
+  imageRepository: 192.168.56.99:5001/coredns
 etcd:
   local:
     dataDir: /var/lib/etcd
-imageRepository: 192.168.253.99:5001
+imageRepository: 192.168.56.99:5001
 networking:
   dnsDomain: cluster.local
   serviceSubnet: 10.96.0.0/12

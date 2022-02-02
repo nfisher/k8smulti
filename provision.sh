@@ -7,16 +7,17 @@ source /vagrant/versions.rc
 PATH=$PATH:/usr/local/bin; export PATH
 DEBIAN_FRONTEND=noninteractive; export DEBIAN_FRONTEND
 
-echo 'Acquire::http { Proxy "http://192.168.253.99:3142"; };' > /etc/apt/apt.conf.d/02proxy
+echo 'Acquire::http { Proxy "http://192.168.56.99:3142"; };' > /etc/apt/apt.conf.d/02proxy
 
 dpkg --remove docker docker-engine docker.io containerd runc
 
 # k8s repo setup
 curl -q -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-curl -q -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+curl -q -s https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+
 
 echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
-add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu/ $(lsb_release -cs) stable"
 
 # disable swap
 swapoff -a
@@ -26,7 +27,7 @@ grep -v swap /etc/fstab > /etc/fstab.tmp && mv /etc/fstab.tmp /etc/fstab
 apt-get update -qq
 apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common \
   lvm2 net-tools htop \
-  containerd=${CONTAINERD_VERSION} \
+  containerd.io=${CONTAINERD_VERSION} \
   kubelet=${KUBE_PKG_VERSION} kubeadm=${KUBE_PKG_VERSION} kubectl=${KUBE_PKG_VERSION}
 
 mkdir -p /etc/containerd
@@ -124,9 +125,9 @@ oom_score = 0
     [plugins."io.containerd.grpc.v1.cri".registry]
       [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
-          endpoint = ["http://192.168.253.99:5000"]
-        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."192.168.253.99:5001"]
-          endpoint = ["http://192.168.253.99:5001"]
+          endpoint = ["http://192.168.56.99:5000"]
+        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."192.168.56.99:5001"]
+          endpoint = ["http://192.168.56.99:5001"]
     [plugins."io.containerd.grpc.v1.cri".x509_key_pair_streaming]
       tls_cert_file = ""
       tls_key_file = ""
@@ -175,13 +176,14 @@ systemctl daemon-reload
 systemctl restart kubelet.service
 
 if [ "master" = `hostname -s` ]; then
-  cp /vagrant/cluster.yaml .
-  echo "kubernetesVersion: v${KUBE_VERSION}" >> cluster.yaml
-  kubeadm init --config=cluster.yaml
+  YAML=cluster.yaml
+  cp /vagrant/${YAML} .
+  echo "kubernetesVersion: v${KUBE_VERSION}" >> ${YAML}
+  kubeadm init --config=${YAML}
     #--pod-network-cidr=10.217.0.0/16
 else
   kubeadm join \
-    192.168.253.100:6443 \
+    192.168.56.100:6443 \
     --token abcdef.0123456789abcdef \
     --discovery-token-unsafe-skip-ca-verification
 fi

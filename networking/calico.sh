@@ -107,7 +107,7 @@ spec:
     protocol: TCP
     source:
       nets:
-      - "192.168.253.0/24"
+      - "192.168.56.0/24"
     destination:
       ports: [22]
   - action: Allow
@@ -121,7 +121,7 @@ spec:
     protocol: TCP
     destination:
       nets:
-      - "192.168.253.100/32"
+      - "192.168.56.100/32"
       ports: [2379]
   - action: Allow
     protocol: UDP

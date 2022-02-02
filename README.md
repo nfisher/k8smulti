@@ -10,7 +10,7 @@ Provides a multinode cluster on your local machine.
   - 1 x cache (1vcpu & 512MB ram)
   - k8s v1.20.5.
   - helm 3.x.
-  - API - 192.168.253.100:6443.
+  - API - 192.168.56.100:6443.
   - kube config - k8smulti/config
 
 ## Required Software
@@ -33,7 +33,7 @@ Provides a multinode cluster on your local machine.
 
 | Name           | Network          |
 | -------------- | ---------------- |
-| Host           | 192.168.253.0/24 |
+| Host           | 192.168.56.0/24 |
 | Pods (default) | 10.217.0.0/16    |
 | Pods (pool1)   | 10.218.1.0/24    |
 | Pods (pool2)   | 10.218.2.0/24    |
