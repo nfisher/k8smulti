@@ -12,19 +12,22 @@ chown -R vagrant:vagrant /home/vagrant/.kube
 kubectl apply -f /vagrant/psp.yaml
 
 # install CNI network
-source /vagrant/networking/calico-latest.sh
+#source /vagrant/networking/calico-latest.sh
 
 # install helm things
 curl -q -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
 chmod 755 get_helm.sh
 ./get_helm.sh
 
+source /vagrant/networking/cilium.sh
+
 # add helm repos
 helm repo add stable https://charts.helm.sh/stable
 helm repo update
 
 # install some useful tools
-# helm install --namespace kube-system metrics-server stable/metrics-server --values=/vagrant/metrics-server-values.yaml
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+kubectl patch deployment metrics-server -n kube-system --type 'json' -p '[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--kubelet-insecure-tls"}]'
 
 exit 0
 

@@ -31,6 +31,7 @@ apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-prop
   kubelet=${KUBE_PKG_VERSION} kubeadm=${KUBE_PKG_VERSION} kubectl=${KUBE_PKG_VERSION}
 
 mkdir -p /etc/containerd
+
 cat <<EOF > /etc/containerd/config.toml
 version = 2
 root = "/var/lib/containerd"
@@ -87,7 +88,8 @@ oom_score = 0
     stream_server_port = "0"
     stream_idle_timeout = "4h0m0s"
     enable_selinux = false
-    sandbox_image = "k8s.gcr.io/pause:3.1"
+    selinux_category_range = 1024
+    sandbox_image = "k8s.gcr.io/pause:3.2"
     stats_collect_period = 10
     systemd_cgroup = false
     enable_tls_streaming = false
@@ -97,26 +99,37 @@ oom_score = 0
     restrict_oom_score_adj = false
     max_concurrent_downloads = 3
     disable_proc_mount = false
+    unset_seccomp_profile = ""
+    tolerate_missing_hugetlb_controller = true
+    disable_hugetlb_controller = true
+    ignore_image_defined_volumes = false
     [plugins."io.containerd.grpc.v1.cri".containerd]
       snapshotter = "overlayfs"
       default_runtime_name = "runc"
       no_pivot = false
+      disable_snapshot_annotations = true
+      discard_unpacked_layers = false
       [plugins."io.containerd.grpc.v1.cri".containerd.default_runtime]
         runtime_type = ""
         runtime_engine = ""
         runtime_root = ""
         privileged_without_host_devices = false
+        base_runtime_spec = ""
       [plugins."io.containerd.grpc.v1.cri".containerd.untrusted_workload_runtime]
         runtime_type = ""
         runtime_engine = ""
         runtime_root = ""
         privileged_without_host_devices = false
+        base_runtime_spec = ""
       [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
         [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-          runtime_type = "io.containerd.runc.v1"
+          runtime_type = "io.containerd.runc.v2"
           runtime_engine = ""
           runtime_root = ""
           privileged_without_host_devices = false
+          base_runtime_spec = ""
+          [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+            SystemdCgroup = true
     [plugins."io.containerd.grpc.v1.cri".cni]
       bin_dir = "/opt/cni/bin"
       conf_dir = "/etc/cni/net.d"
@@ -128,6 +141,8 @@ oom_score = 0
           endpoint = ["http://192.168.56.99:5000"]
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."192.168.56.99:5001"]
           endpoint = ["http://192.168.56.99:5001"]
+    [plugins."io.containerd.grpc.v1.cri".image_decryption]
+      key_model = ""
     [plugins."io.containerd.grpc.v1.cri".x509_key_pair_streaming]
       tls_cert_file = ""
       tls_key_file = ""
@@ -153,6 +168,7 @@ oom_score = 0
     root_path = ""
     pool_name = ""
     base_image_size = ""
+    async_remove = false
 EOF
 
 systemctl daemon-reload
@@ -165,6 +181,7 @@ cat <<EOF >  /etc/sysctl.d/99-kubernetes-cri.conf
 net.bridge.bridge-nf-call-iptables  = 1
 net.bridge.bridge-nf-call-ip6tables = 1
 net.ipv4.ip_forward                 = 1
+net.ipv4.conf.lxc*.rp_filter        = 0
 EOF
 sysctl --system
 

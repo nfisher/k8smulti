@@ -2,7 +2,11 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/focal64"
+
+  config.vm.box = "ubuntu/jammy64"
+  
+  # avoids duplicate MAC's
+  config.vm.base_mac = nil
 
   # VMWare private IP allocation seems borked on latest OSX. Advise using VirtualBox.
   config.vm.provider :vmware_desktop do |v|
@@ -15,6 +19,7 @@ Vagrant.configure("2") do |config|
     vb.customize ["modifyvm", :id, "--largepages", "on"]
     vb.customize ["modifyvm", :id, "--vtxvpid", "on"]
     vb.customize ["modifyvm", :id, "--vtxux", "on"]
+    vb.customize ["modifyvm", :id, "--nictype1", "virtio"]
   end
 
   #
@@ -23,7 +28,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "cache" do |node|
     resources(node, 1, 512)
 
-    node.vm.network "private_network", ip: "192.168.56.99"
+    node.vm.network "private_network", ip: "192.168.56.99", nic_type: "virtio"
     node.vm.hostname = "cache"
     node.vm.provision "shell", path: "cache.sh"
   end
@@ -35,7 +40,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "master" do |node|
     resources(node, 2, 2048)
 
-    node.vm.network "private_network", ip: "192.168.56.100"
+    node.vm.network "private_network", ip: "192.168.56.100", nic_type: "virtio"
     node.vm.hostname = "master"
 
     node.vm.provision :shell, inline: "sed 's/127\\.0\\.[0-9]\\.1.*master.*/192\\.168\\.56\\.100 master/' -i /etc/hosts"
@@ -50,7 +55,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "node01" do |node|
     resources(node, 2, 4096)
 
-    node.vm.network "private_network", ip: "192.168.56.101"
+    node.vm.network "private_network", ip: "192.168.56.101", nic_type: "virtio"
     node.vm.hostname = "node01"
 
     node.vm.provision :shell, inline: "sed 's/127\\.0\\.[0-9]\\.1.*node01.*/192\\.168\\.56\\.101 node01/' -i /etc/hosts"
