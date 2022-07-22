@@ -53,7 +53,7 @@ Vagrant.configure("2") do |config|
   # node01 configuration
   #
   config.vm.define "node01" do |node|
-    resources(node, 2, 4096)
+    resources(node, 2, 3072)
 
     node.vm.network "private_network", ip: "192.168.56.101", nic_type: "virtio"
     node.vm.hostname = "node01"
@@ -67,7 +67,7 @@ Vagrant.configure("2") do |config|
   # node02 configuration
   #
   config.vm.define "node02" do |node|
-    resources(node, 2, 4096)
+    resources(node, 2, 3072)
 
     node.vm.network "private_network", ip: "192.168.56.102"
     node.vm.hostname = "node02"
