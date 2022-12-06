@@ -129,4 +129,7 @@ for IMG in $(kubeadm config images list --kubernetes-version=v${KUBE_VERSION} 2>
 do
   docker tag k8s.gcr.io/$IMG 192.168.56.99:5001/$IMG
   docker push 192.168.56.99:5001/$IMG
+  # lazy fix for coredns having a subdir
+  docker tag k8s.gcr.io/$IMG 192.168.56.99:5001/coredns/$IMG
+  docker push 192.168.56.99:5001/coredns/$IMG
 done
