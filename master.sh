@@ -11,15 +11,15 @@ chown -R vagrant:vagrant /home/vagrant/.kube
 
 kubectl apply -f /vagrant/psp.yaml
 
-# install CNI network
-#source /vagrant/networking/calico-latest.sh
 
 # install helm things
 curl -q -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
 chmod 755 get_helm.sh
 ./get_helm.sh
 
-source /vagrant/networking/cilium.sh
+# install CNI network
+source /vagrant/networking/calico-latest.sh
+#source /vagrant/networking/cilium.sh
 
 # add helm repos
 helm repo add stable https://charts.helm.sh/stable
