@@ -195,12 +195,12 @@ systemctl restart kubelet.service
 if [ "master" = `hostname -s` ]; then
   YAML=cluster.yaml
   cp /vagrant/${YAML} .
-  echo "kubernetesVersion: v${KUBE_VERSION}" >> ${YAML}
-  kubeadm init --config=${YAML}
+  kubeadm init --config=${YAML} --kubernetes-version=v${KUBE_VERSION}
     #--pod-network-cidr=10.217.0.0/16
 else
   kubeadm join \
     192.168.56.100:6443 \
     --token abcdef.0123456789abcdef \
-    --discovery-token-unsafe-skip-ca-verification
+    --discovery-token-unsafe-skip-ca-verification \
+    --kubernetes-version=v${KUBE_VERSION}
 fi

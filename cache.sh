@@ -26,23 +26,27 @@ apt-get install -y \
   docker-ce=${DOCKER_VERSION} \
   kubeadm=${KUBE_PKG_VERSION}
 
-cat > /etc/docker/daemon.json <<EOF
+mkdir -p /etc/containerd
+containerd config default > /etc/containerd/config.toml
+
+sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/' /etc/containerd/config.toml
+sed -i 's/snapshotter = "overlayfs"/snapshotter = "native"/' /etc/containerd/config.toml
+
+cat > /etc/docker/daemon.json.old <<EOF
 {
   "exec-opts": ["native.cgroupdriver=systemd"],
   "log-driver": "json-file",
   "log-opts": {
     "max-size": "100m"
   },
-  "storage-driver": "overlay2",
-  "storage-opts": [
-    "overlay2.override_kernel_check=true"
-  ],
   "registry-mirrors": ["http://192.168.56.99:5000"],
   "insecure-registries" : ["192.168.56.99:5000","192.168.56.99:5001"]
 }
 EOF
 mkdir -p /etc/systemd/system/docker.service.d
+
 systemctl daemon-reload
+systemctl restart containerd
 systemctl restart docker
 
 cat > /etc/docker/registry.yml <<EOF
@@ -121,15 +125,20 @@ health:
     threshold: 3
 EOF
 
-docker run -d -p 5001:5000 --restart=always --name local-registry registry:2.7
-docker run -d -p 5000:5000 --restart=always -v /etc/docker/registry.yml:/etc/docker/registry/config.yml --name cache-registry registry:2.7
+docker run -d -p 5001:5000 --restart=always --name local-registry registry:2
+docker run -d -p 5000:5000 --restart=always -v /etc/docker/registry.yml:/etc/docker/registry/config.yml --name cache-registry registry:2
 
 kubeadm config images pull --kubernetes-version=v${KUBE_VERSION}
-for IMG in $(kubeadm config images list --kubernetes-version=v${KUBE_VERSION} 2> /dev/null | cut -c 12-);
+echo "Done Pull"
+
+curl -LO https://github.com/containerd/nerdctl/releases/download/v1.1.0/nerdctl-1.1.0-linux-amd64.tar.gz
+tar xzf nerdctl-1.1.0-linux-amd64.tar.gz
+
+for IMG in $(kubeadm config images list --kubernetes-version=v${KUBE_VERSION} 2> /dev/null | cut -f2-3 -d'/');
 do
-  docker tag k8s.gcr.io/$IMG 192.168.56.99:5001/$IMG
-  docker push 192.168.56.99:5001/$IMG
+  ./nerdctl tag --namespace k8s.io registry.k8s.io/$IMG 192.168.56.99:5001/$IMG
+  ./nerdctl push --namespace k8s.io --insecure-registry 192.168.56.99:5001/$IMG
   # lazy fix for coredns having a subdir
-  docker tag k8s.gcr.io/$IMG 192.168.56.99:5001/coredns/$IMG
-  docker push 192.168.56.99:5001/coredns/$IMG
+  ./nerdctl tag --namespace k8s.io registry.k8s.io/$IMG 192.168.56.99:5001/coredns/$IMG
+  ./nerdctl push --namespace k8s.io --insecure-registry 192.168.56.99:5001/coredns/$IMG
 done
