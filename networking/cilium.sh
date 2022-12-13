@@ -8,3 +8,4 @@ sudo tar xzvfC cilium-linux-amd64.tar.gz /usr/local/bin
 rm cilium-linux-amd64.tar.gz{,.sha256sum}
 
 /usr/local/bin/cilium install
+
