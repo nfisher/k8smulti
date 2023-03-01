@@ -4,7 +4,7 @@ export KUBECONFIG=/etc/kubernetes/admin.conf
 curl -q -O -L  https://github.com/projectcalico/calicoctl/releases/download/v3.14.1/calicoctl
 chmod +x calicoctl
 mv calicoctl /usr/local/bin/calicoctl
-kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml
 
 # create 2 subnet pools
 /usr/local/bin/calicoctl apply -f - <<EOT
