@@ -128,11 +128,11 @@ EOF
 docker run -d -p 5001:5000 --restart=always --name local-registry registry:2
 docker run -d -p 5000:5000 --restart=always -v /etc/docker/registry.yml:/etc/docker/registry/config.yml --name cache-registry registry:2
 
-kubeadm config images pull --kubernetes-version=v${KUBE_VERSION}
+kubeadm config images pull --kubernetes-version=v${KUBE_VERSION} --cri-socket=/var/run/containerd/containerd.sock
 echo "Done Pull"
 
-curl -LO https://github.com/containerd/nerdctl/releases/download/v1.1.0/nerdctl-1.1.0-linux-amd64.tar.gz
-tar xzf nerdctl-1.1.0-linux-amd64.tar.gz
+curl -LO https://github.com/containerd/nerdctl/releases/download/v1.3.1/nerdctl-1.3.1-linux-amd64.tar.gz
+tar xzf nerdctl-1.3.1-linux-amd64.tar.gz
 
 for IMG in $(kubeadm config images list --kubernetes-version=v${KUBE_VERSION} 2> /dev/null | cut -f2-3 -d'/');
 do

@@ -3,7 +3,7 @@
 
 Vagrant.configure("2") do |config|
 
-  config.vm.box = "ubuntu/jammy64"
+  config.vm.box = "ubuntu/lunar64"
   
   # avoids duplicate MAC's
   config.vm.base_mac = nil
