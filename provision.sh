@@ -195,9 +195,8 @@ systemctl restart kubelet.service
 if [ "master" = `hostname -s` ]; then
   YAML=cluster-24.yaml
   cp /vagrant/${YAML} .
-  grep -v kubernetesVersion ${YAML} > version-${YAML}
-  echo "kubernetesVersion: v${KUBE_VERSION}" >> version-${YAML}
-  kubeadm init --config=version-${YAML}
+  echo "kubernetesVersion: v${KUBE_VERSION}" >> ${YAML}
+  kubeadm init --config=${YAML}
     #--pod-network-cidr=10.217.0.0/16
 else
   kubeadm join \

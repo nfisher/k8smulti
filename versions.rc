@@ -2,5 +2,5 @@ export DOCKER_VERSION="5:23.0.5-1~ubuntu.23.04~lunar"
 export CONTAINERD_VERSION="1.6.20-1"
 
 
-export KUBE_VERSION="1.24.13"
+export KUBE_VERSION="1.25.11"
 export KUBE_PKG_VERSION="${KUBE_VERSION}-00"
