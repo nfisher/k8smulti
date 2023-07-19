@@ -42,7 +42,7 @@ required_plugins = []
 oom_score = 0
 
 [grpc]
-  address = "/run/containerd/containerd.sock"
+  address = "/var/run/containerd/containerd.sock"
   tcp_address = ""
   tcp_tls_cert = ""
   tcp_tls_key = ""
@@ -193,10 +193,11 @@ systemctl daemon-reload
 systemctl restart kubelet.service
 
 if [ "master" = `hostname -s` ]; then
-  YAML=cluster.yaml
+  YAML=cluster-24.yaml
   cp /vagrant/${YAML} .
-  echo "kubernetesVersion: v${KUBE_VERSION}" >> ${YAML}
-  kubeadm init --config=${YAML}
+  grep -v kubernetesVersion ${YAML} > version-${YAML}
+  echo "kubernetesVersion: v${KUBE_VERSION}" >> version-${YAML}
+  kubeadm init --config=version-${YAML}
     #--pod-network-cidr=10.217.0.0/16
 else
   kubeadm join \

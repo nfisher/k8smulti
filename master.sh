@@ -9,7 +9,7 @@ cp /etc/kubernetes/admin.conf /home/vagrant/.kube/config
 cp /etc/kubernetes/admin.conf /vagrant/config
 chown -R vagrant:vagrant /home/vagrant/.kube
 
-kubectl apply -f /vagrant/psp.yaml
+#kubectl apply -f /vagrant/psp.yaml
 
 
 # install helm things

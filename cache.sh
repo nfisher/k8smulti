@@ -128,7 +128,7 @@ EOF
 docker run -d -p 5001:5000 --restart=always --name local-registry registry:2
 docker run -d -p 5000:5000 --restart=always -v /etc/docker/registry.yml:/etc/docker/registry/config.yml --name cache-registry registry:2
 
-kubeadm config images pull --kubernetes-version=v${KUBE_VERSION} --cri-socket=/var/run/containerd/containerd.sock
+kubeadm config images pull --kubernetes-version=v${KUBE_VERSION} --cri-socket=/run/containerd/containerd.sock
 echo "Done Pull"
 
 curl -LO https://github.com/containerd/nerdctl/releases/download/v1.3.1/nerdctl-1.3.1-linux-amd64.tar.gz
