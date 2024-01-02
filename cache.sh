@@ -1,8 +1,10 @@
 #!/bin/bash -eu
 
 source /vagrant/versions.rc
+source /vagrant/common.sh
 
 apt-get update
+
 DEBIAN_FRONTEND=noninteractive apt-get install -y apt-cacher-ng
 echo 'PassThroughPattern: ^(.*):443$' >> /etc/apt-cacher-ng/acng.conf
 service apt-cacher-ng restart
@@ -11,20 +13,14 @@ echo 'Acquire::http { Proxy "http://192.168.56.99:3142"; };' > /etc/apt/apt.conf
 
 apt-get update
 apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
-dpkg --remove docker docker-engine docker.io containerd runc
 
-curl -q -s https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+setup_docker_repo
 
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
-
-add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu/ $(lsb_release -cs) stable"
+setup_kube_repo
 
 apt-get update
-apt-get install -y \
-  docker-ce=${DOCKER_VERSION} \
-  kubeadm=${KUBE_PKG_VERSION}
+
+install_kube_and_docker
 
 mkdir -p /etc/containerd
 containerd config default > /etc/containerd/config.toml

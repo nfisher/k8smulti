@@ -3,25 +3,18 @@
 KUBELET_IP=$1; export KUBELET_IP
 
 source /vagrant/versions.rc
+source /vagrant/common.sh
 
 PATH=$PATH:/usr/local/bin; export PATH
 DEBIAN_FRONTEND=noninteractive; export DEBIAN_FRONTEND
 
 echo 'Acquire::http { Proxy "http://192.168.56.99:3142"; };' > /etc/apt/apt.conf.d/02proxy
 
-dpkg --remove docker docker-engine docker.io containerd runc
+setup_docker_repo
 
-# k8s repo setup
-curl -q -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-curl -q -s https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+setup_kube_repo
 
-
-echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
-add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu/ $(lsb_release -cs) stable"
-
-# disable swap
-swapoff -a
-grep -v swap /etc/fstab > /etc/fstab.tmp && mv /etc/fstab.tmp /etc/fstab
+disable_swap
 
 # install OS packages
 apt-get update -qq
