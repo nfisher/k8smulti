@@ -3,22 +3,14 @@
 source /vagrant/versions.rc
 source /vagrant/common.sh
 
-apt-get update
+env_noninteractive
 
-DEBIAN_FRONTEND=noninteractive apt-get install -y apt-cacher-ng
-echo 'PassThroughPattern: ^(.*):443$' >> /etc/apt-cacher-ng/acng.conf
-service apt-cacher-ng restart
+install_apt_cache
 
-echo 'Acquire::http { Proxy "http://192.168.56.99:3142"; };' > /etc/apt/apt.conf.d/02proxy
-
-apt-get update
-apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
+add_apt_proxy
 
 setup_docker_repo
-
 setup_kube_repo
-
-apt-get update
 
 install_kube_and_docker
 

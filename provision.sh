@@ -6,22 +6,17 @@ source /vagrant/versions.rc
 source /vagrant/common.sh
 
 PATH=$PATH:/usr/local/bin; export PATH
-DEBIAN_FRONTEND=noninteractive; export DEBIAN_FRONTEND
 
-echo 'Acquire::http { Proxy "http://192.168.56.99:3142"; };' > /etc/apt/apt.conf.d/02proxy
+env_noninteractive
+
+add_apt_proxy
 
 setup_docker_repo
-
 setup_kube_repo
 
 disable_swap
 
-# install OS packages
-apt-get update -qq
-apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common \
-  lvm2 net-tools htop \
-  containerd.io=${CONTAINERD_VERSION} \
-  kubelet=${KUBE_PKG_VERSION} kubeadm=${KUBE_PKG_VERSION} kubectl=${KUBE_PKG_VERSION}
+install_kube_and_containerd
 
 mkdir -p /etc/containerd
 
