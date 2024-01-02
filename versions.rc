@@ -1,6 +1,6 @@
-export DOCKER_VERSION="5:23.0.5-1~ubuntu.23.04~lunar"
+export DOCKER_VERSION="5:24.0.7-1~ubuntu.23.04~lunar"
 export CONTAINERD_VERSION="1.6.20-1"
 
-export KUBE_MAJOR="1.25"
-export KUBE_VERSION="${KUBE_MAJOR}.16"
+export KUBE_MAJOR="1.27"
+export KUBE_VERSION="${KUBE_MAJOR}.9"
 export KUBE_PKG_VERSION="${KUBE_VERSION}-1.1"
