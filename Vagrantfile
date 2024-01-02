@@ -4,6 +4,7 @@
 Vagrant.configure("2") do |config|
 
   config.vm.box = "ubuntu/lunar64"
+  config.vm.box_version = "20231219.0.0"
   
   # avoids duplicate MAC's
   config.vm.base_mac = nil

@@ -9,7 +9,7 @@ apt_update() {
 }
 
 cache_kube_images() {
-    kubeadm config images pull --kubernetes-version=v${KUBE_VERSION} --cri-socket=/run/containerd/containerd.sock
+    kubeadm config images pull --kubernetes-version=v${KUBE_VERSION} --cri-socket=unix:///run/containerd/containerd.sock
     echo "Done Pull"
 
     curl -LO https://github.com/containerd/nerdctl/releases/download/v1.3.1/nerdctl-1.3.1-linux-amd64.tar.gz
@@ -214,7 +214,7 @@ oom_score = 0
     stream_idle_timeout = "4h0m0s"
     enable_selinux = false
     selinux_category_range = 1024
-    sandbox_image = "k8s.gcr.io/pause:3.2"
+    sandbox_image = "192.168.56.99:5001/pause:3.9"
     stats_collect_period = 10
     systemd_cgroup = false
     enable_tls_streaming = false
