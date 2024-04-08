@@ -23,6 +23,8 @@ Vagrant.configure("2") do |config|
     vb.customize ["modifyvm", :id, "--nictype1", "virtio"]
   end
 
+  config.vm.synced_folder "/Users/nfisher/.m2/repository", "/mnt/repo"
+
   #
   # cache configuration
   #
