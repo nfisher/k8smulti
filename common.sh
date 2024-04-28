@@ -1,3 +1,4 @@
+#!/bin/bash
 # Try to keep the functions in alphabetical order.
 
 add_apt_proxy() {
